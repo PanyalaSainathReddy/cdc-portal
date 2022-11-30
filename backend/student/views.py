@@ -209,6 +209,64 @@ class AvailableOffers(APIView):
         return Response(offers, status.HTTP_200_OK)
 
 
+class UpcomingOffers(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get_applied_ad_list(self, user, model):
+        if model == InternshipAdvertisement:
+            m = InternshipOffer
+        else:
+            m = JobOffer
+        return model.objects.filter(
+            id__in=m.objects.filter(student__user=user).values_list('profile'))
+
+    def get_offers(self, profile, model):
+        if not profile.banned:
+            if profile.program_branch.check_gpa:
+                if profile.gender == 'Male':
+                    offers = model.objects.filter(min_gpa__lte=profile.gpa, min_ug_gpa__lte=profile.ug_gpa,
+                                                  eligible_program_branch__getter__contains=profile.program_branch.getter,
+                                                  only_female=False, show_company=True).difference(self.get_applied_ad_list(profile.user, model))
+                else:
+                    offers = model.objects.filter(min_gpa__lte=profile.gpa, min_ug_gpa__lte=profile.ug_gpa,
+                                                  eligible_program_branch__getter__contains=profile.program_branch.getter,
+                                                  show_company=True).difference(self.get_applied_ad_list(profile.user, model))
+            else:
+                if profile.gender == 'Male':
+                    offers = model.objects.filter(min_gpa__lte=profile.gpa,
+                                                  eligible_program_branch__getter__contains=profile.program_branch.getter,
+                                                  only_female=False, show_company=True).difference(self.get_applied_ad_list(profile.user, model))
+                else:
+                    offers = model.objects.filter(min_gpa__lte=profile.gpa,
+                                                  eligible_program_branch__getter__contains=profile.program_branch.getter,
+                                                  show_company=True).difference(self.get_applied_ad_list(profile.user, model))
+
+            return offers
+
+    def get(self, request):
+        show = get_config_value('ShowAdertisements')
+        profile = get_object_or_404(StudentProfile, user=request.user)
+        IntershipYears = get_config_value('IntershipYears')
+        JobYears = get_config_value('JobYears')
+        if profile.banned:
+            Response({'Error': 'You are Banned', }, status.HTTP_403_FORBIDDEN)
+        if profile.placed:
+            Response({'Error': 'You are Placed', }, status.HTTP_403_FORBIDDEN)
+        year_combo = profile.program_branch.getter.split('/')[0] + str(profile.year)
+        offers = {}
+        if year_combo in IntershipYears:
+            model = InternshipAdvertisement
+            serializer = InternshipAdvertisementSerializer
+            off = self.get_offers(profile, model)
+            offers['Internships'] = serializer(off, many=True).data if show else []
+        if year_combo in JobYears:
+            model = JobAdvertisement
+            serializer = JobAdvertisementSerializer
+            off = self.get_offers(profile, model)
+            offers['Jobs'] = serializer(off, many=True).data if show else []
+        return Response(offers, status.HTTP_200_OK)
+
+
 class AppliedOffers(APIView):
     permission_classes = (IsAuthenticated,)
 

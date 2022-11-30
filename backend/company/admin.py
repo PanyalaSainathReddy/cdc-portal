@@ -123,6 +123,14 @@ def make_inactive(modeladmin, request, queryset):
     queryset.update(active=False)
 
 
+def show_company(modeladmin, request, queryset):
+    queryset.update(show_company=True)
+
+
+def hide_company(modeladmin, request, queryset):
+    queryset.update(show_company=False)
+
+
 def mark_placed(modeladmin, request, queryset):
     queryset.update(is_accepted=True)
 
@@ -220,11 +228,11 @@ class JobAdvertisementAdmin(ImportExportActionModelAdmin):
     change_form_template = "admin/send_advertisement.html"
     readonly_fields = ['creation_timestamp', ]
     resource_class = JobAdvertisementResource
-    list_display = ['company', 'designation', 'ctc', 'min_gpa', 'active', 'expiry', 'email_sent', 'only_female']
-    list_filter = ['company', 'active', 'creation_timestamp', 'only_female']
+    list_display = ['company', 'designation', 'ctc', 'min_gpa', 'active', 'show_company', 'expiry', 'email_sent', 'only_female']
+    list_filter = ['active', 'show_company', 'creation_timestamp', 'only_female', 'company']
     ordering = ['company']
     search_fields = ['company__name', ]
-    actions = [get_zipped_resumes_for_ad, make_active, make_inactive, export_as_csv]
+    actions = [get_zipped_resumes_for_ad, make_active, make_inactive, show_company, hide_company, export_as_csv]
 
     def response_change(self, request, obj):
         subject = "Job Advertisement"
@@ -241,11 +249,11 @@ class InternshipAdvertisementAdmin(ImportExportActionModelAdmin):
     change_form_template = "admin/send_advertisement.html"
     readonly_fields = ['creation_timestamp', ]
     resource_class = InternshipAdvertisementResource
-    list_display = ['company', 'designation', 'min_gpa', 'ctc', 'active', 'expiry', 'email_sent', 'only_female']
-    list_filter = ['company', 'active', 'creation_timestamp', 'only_female']
+    list_display = ['company', 'designation', 'min_gpa', 'ctc', 'active', 'show_company', 'expiry', 'email_sent', 'only_female']
+    list_filter = ['company', 'active', 'show_company', 'creation_timestamp', 'only_female']
     ordering = ['company']
     search_fields = ['company__name', ]
-    actions = [get_zipped_resumes_for_ad, make_active, make_inactive, export_as_csv]
+    actions = [get_zipped_resumes_for_ad, make_active, make_inactive, show_company, hide_company, export_as_csv]
 
     def response_change(self, request, obj):
         subject = "Internship Advertisement"

@@ -60,8 +60,10 @@ function Home() {
   const classes = useStyles();
   const [data, setdata] = React.useState('');
   const [resume, setresumeData] = React.useState([]);
-  const [joboffers, setjoboffers] = React.useState([]);
+  const [upcominginternoffers, setupcominginternoffers] = React.useState([]);
+  const [upcomingjoboffers, setupcomingjoboffers] = React.useState([]);
   const [internoffers, setinternoffers] = React.useState([]);
+  const [joboffers, setjoboffers] = React.useState([]);
 
   function deleteRow(event, index, id) {
     event.preventDefault();
@@ -125,6 +127,35 @@ function Home() {
       });
       setjoboffers(dat);
     });
+    instance
+      .get('student/upcoming_offers/')
+      .then((res) => {
+        console.log(res.data);
+        let dat = [];
+        try {
+          res.data.Internships.forEach((element) => {
+            element.name = element.company.name;
+            element.type = 'Intern';
+            dat.push(element);
+          });
+          setupcominginternoffers(dat);
+        } catch (e) {}
+        dat = [];
+        res.data.Jobs.forEach((element) => {
+          element.name = element.company.name;
+          element.type = 'Job';
+          dat.push(element);
+        });
+        setupcomingjoboffers(dat);
+      })
+      .catch(function (error) {
+        if (error.response) {
+          console.log(error.response);
+          if (error.response.status === 403) {
+            window.alert(error.response.data['Error']);
+          }
+        }
+      });
   }, []);
   return (
     <Grid container spacing={2}>
@@ -145,7 +176,7 @@ function Home() {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell></TableCell>
+                    <TableCell>View</TableCell>
                     <TableCell>Date</TableCell>
                     <TableCell>Company</TableCell>
                     <TableCell>Designation</TableCell>
@@ -203,7 +234,7 @@ function Home() {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell></TableCell>
+                    <TableCell>View</TableCell>
                     <TableCell>Date</TableCell>
                     <TableCell>Company</TableCell>
                     <TableCell>Designation</TableCell>
@@ -323,6 +354,118 @@ function Home() {
             </Table>
           </React.Fragment>
         </Paper>
+        {upcominginternoffers.length === 0 ? (
+          <div />
+        ) : (
+          <Paper className={classes.paper}>
+            <React.Fragment>
+              <Typography
+                component="h2"
+                variant="h6"
+                color="primary"
+                gutterBottom
+              >
+                Upcoming Internships Offers
+              </Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>S No.</TableCell>
+                    <TableCell>View</TableCell>
+                    <TableCell>Company</TableCell>
+                    <TableCell>Designation</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {upcominginternoffers.map((row, index) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <VisibilityIcon
+                          style={{
+                            marginLeft: '10%',
+                            paddingTop: '1%',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => {
+                            window.location =
+                              '/student-dashboard/advertisement/' + row.adv;
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.designation}</TableCell>
+                      <TableCell>
+                        {row.active ? (
+                          <Chip color="green" label="Active" />
+                        ) : (
+                          <Chip label="Upcoming" />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </React.Fragment>
+          </Paper>
+        )}
+        {upcomingjoboffers.length === 0 ? (
+          <div />
+        ) : (
+          <Paper className={classes.paper}>
+            <React.Fragment>
+              <Typography
+                component="h2"
+                variant="h6"
+                color="primary"
+                gutterBottom
+              >
+                Upcoming Job Offers
+              </Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>S No.</TableCell>
+                    <TableCell>View</TableCell>
+                    <TableCell>Company</TableCell>
+                    <TableCell>Designation</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {upcomingjoboffers.map((row, index) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>
+                        <VisibilityIcon
+                          style={{
+                            marginLeft: '10%',
+                            paddingTop: '1%',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => {
+                            window.location =
+                              '/student-dashboard/advertisement/' + row.adv;
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.designation}</TableCell>
+                      <TableCell>
+                        {row.active ? (
+                          <Chip color="green" label="Active" />
+                        ) : (
+                          <Chip label="Upcoming" />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </React.Fragment>
+          </Paper>
+        )}
       </Grid>
       <Grid item xs={12} sm={4}>
         <Paper className={classes.paper}>

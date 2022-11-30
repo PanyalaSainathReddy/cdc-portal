@@ -365,7 +365,7 @@ function Home() {
                 color="primary"
                 gutterBottom
               >
-                Upcoming Internships Offers
+                Upcoming Internship Offers
               </Typography>
               <Table size="small">
                 <TableHead>

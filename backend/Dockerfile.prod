@@ -8,7 +8,7 @@ ARG BUILD_DEPS="gcc python3-dev musl-dev postgresql-dev jpeg-dev zlib-dev libjpe
 RUN apk --no-cache add ${BUILD_DEPS}
 RUN pip install --upgrade pip
 RUN pip install celery
-RUN pip install pipenv
+RUN pip install pipenv==2022.10.4
 
 # Setup JAVA_HOME -- useful for docker commandline
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/

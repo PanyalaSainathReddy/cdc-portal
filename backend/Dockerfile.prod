@@ -1,14 +1,14 @@
-FROM python:3.7-alpine AS base
+FROM python:3.10 AS base
 
 ENV PYROOT /pyroot
 ENV PYTHONUSERBASE $PYROOT
 
 # Build Container
-ARG BUILD_DEPS="gcc python3-dev musl-dev postgresql-dev jpeg-dev zlib-dev libjpeg libffi-dev openjdk8"
-RUN apk --no-cache add ${BUILD_DEPS}
+# ARG BUILD_DEPS="gcc python3-dev musl-dev postgresql-dev jpeg-dev zlib-dev libjpeg libffi-dev openjdk8"
+# RUN apk --no-cache add ${BUILD_DEPS}
 RUN pip install --upgrade pip
 RUN pip install celery
-RUN pip install pipenv==2022.10.4
+RUN pip install pipenv
 
 # Setup JAVA_HOME -- useful for docker commandline
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
@@ -21,8 +21,8 @@ RUN PIP_USER=1 PIP_IGNORE_INSTALLED=1 pipenv install --system --deploy --ignore-
         -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
         -exec rm -rf '{}' \+
 
-ARG RUNTIME_DEPS="libcrypto1.1 libssl1.1 libpq"
-RUN apk --no-cache add ${RUNTIME_DEPS}
+# ARG RUNTIME_DEPS="libcrypto1.1 libssl1.1 libpq"
+# RUN apk --no-cache add ${RUNTIME_DEPS}
 RUN pip install gunicorn
 
 WORKDIR /app
